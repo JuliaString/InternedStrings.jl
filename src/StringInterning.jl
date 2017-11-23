@@ -1,6 +1,6 @@
 module StringInterning
 
-using WeakRefStrings
+#using WeakRefStrings
 import Base: endof, next, sizeof, String, ==, hash
 export InternedString
 
@@ -18,7 +18,7 @@ function patched_get!(wkd::WeakKeyDict{K}, key, default) where{K}
         else
             # Not found, so add it,
             # and mark it as a reference we track to delete!
-            finalizer(kk, (x)->begin println(x); wkd.finalizer(x) end)
+            finalizer(kk, wkd.finalizer)
             return wkd.ht[kwr]=default
         end
     end
@@ -30,7 +30,9 @@ struct InternedString <: AbstractString
     function InternedString(s)
         #can't use get! as  https://github.com/JuliaLang/julia/issues/24721
         value = convert(String, s)
-        new(patched_get!(pool, value, WeakRef(value)).value)
+        ret = new(patched_get!(pool, value, WeakRef(value)).value)
+        @assert ret.value == value
+        ret
     end
 end
 
