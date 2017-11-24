@@ -3,6 +3,8 @@
 String interning in julia.
 For not having duplicate strings in memory.
 
+[![Build Status](https://travis-ci.org/oxinabox/StringInterning.jl.svg?branch=master)](https://travis-ci.org/oxinabox/StringInterning.jl)
+
 ## Usage
 
 `InternedString(s)` returns an interned string.
@@ -15,9 +17,10 @@ For convenience it also comes in string macro form:
 Use them just like you would Strings and enjoy your memory savings.
 
 
-###  `split` and regex the functions don't return substrings Anymore :-( :-(
+####  `split` and regex the functions don't return substrings anymore :-( :-(
 Yes,  `split`ing an InternedString does not make a vector of  `SubString{InternedString}`.
 It just make an `InternedString`.
+Similar for all the regex function.
 
 Ideally we would also change every `SubStrings{InternedString}` everywhere, to be just `InternedString`.
 But it is a bit too breaking.
@@ -28,10 +31,11 @@ If you are using StringInterning you probably don't want a substring anywhere.
 Since you might mistakenly end-up holding on to a really big string.
 The very problem this is designed to avoid.
 
+Please raise issues if you find functions that are returning SubStrings,
+that shouldn't be.
 
 
-
-# Motivation (/Ranting)
+## Motivation (/Ranting)
 In natural language processing,
 when looking at a document,
 the first thing to do is to break it up into tokens.
