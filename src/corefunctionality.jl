@@ -1,18 +1,21 @@
 
-const pool = WeakKeyDict{String, WeakRef}()
+const pool = WeakKeyDict{String, Void}()
 
-# work around   https://github.com/JuliaLang/julia/issues/24721
-function patched_get!(wkd::WeakKeyDict{K}, key, default) where{K}
+function intern!(wkd::WeakKeyDict{K}, key)::K where K
     kk = convert(K, key)
     kwr = WeakRef(kk)
     lock(wkd) do
-        if haskey(wkd.ht, kwr)
-            return wkd.ht[kwr]
+        found_key = getkey(wkd.ht, kwr, Base.secret_table_token)
+        found = !(found_key === Base.secret_table_token)
+
+        if found
+            return found_key.value
         else
             # Not found, so add it,
             # and mark it as a reference we track to delete!
             finalizer(kk, wkd.finalizer)
-            return wkd.ht[kwr]=default
+            wkd.ht[kwr]=nothing
+            return kk
         end
     end
 end
@@ -20,13 +23,7 @@ end
 struct InternedString <: AbstractString
     value::String
 
-    function InternedString(s)
-        #can't use get! as  https://github.com/JuliaLang/julia/issues/24721
-        value = convert(String, s)
-        ret = new(patched_get!(pool, value, WeakRef(value)).value)
-        @assert ret.value == value
-        ret
-    end
+    InternedString(s) = new(intern!(pool, s))
 end
 
 macro i_str(s)

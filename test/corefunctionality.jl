@@ -47,30 +47,68 @@ end end
 end end
 
 
-@testset "Garbage Collections" begin let
-    @testset "Garbage Collection 1" begin let
-        empty!(StringInterning.pool)
-        @test length(StringInterning.pool)==0
-        ai =  InternedString("Hello My Friends3")
-        ai = [44] #remove the reference
-        gc();
-        @test 0<=length(StringInterning.pool)<=1 #May or may not have been collected yet
-    end end
 
-    @testset "Garbage Collection 2" begin let
-        empty!(StringInterning.pool)
-        @test length(StringInterning.pool)==0
-        ai = InternedString("Hello My Friends4")
-        bi = InternedString(join(["Hello", "My", "Friends4"], " "))
-        @test ai.value === bi.value
-        @test length(StringInterning.pool)==1
-        use(ai,bi)
-        ai = [44]
+@testset "Garbage Collection 1" begin let
+    empty!(StringInterning.pool)
+    @test length(StringInterning.pool)==0
+    ai =  InternedString("Hello My Friends3")
+    ai = [44] #remove the reference
+    gc();
+    @test 0<=length(StringInterning.pool)<=1 #May or may not have been collected yet
+end end
+
+@testset "Garbage Collection 2" begin let
+    empty!(StringInterning.pool)
+    @test length(StringInterning.pool)==0
+    ai = InternedString("Hello My Friends4")
+    bi = InternedString(join(["Hello", "My", "Friends4"], " "))
+    @test ai.value === bi.value
+    @test length(StringInterning.pool)==1
+    use(ai,bi)
+    ai = [44]
+    gc()
+    @test length(StringInterning.pool)==1 #don't collect when only one reference is gone
+    use(bi)
+    bi=[32]
+    gc()
+    @test 0<=length(StringInterning.pool)<=1
+end end
+
+
+
+srand(1)
+@testset "Garbage Collection stress test" begin let
+    empty!(StringInterning.pool)
+    oldpoolsize = length(StringInterning.pool)
+    function checkpool(op)
         gc()
-        @test length(StringInterning.pool)==1 #don't collect when only one reference is gone
-        use(bi)
-        bi=[32]
-        gc()
-        @test 0<=length(StringInterning.pool)<=1
-    end end
+        @test op(length(StringInterning.pool), oldpoolsize)
+        oldpoolsize = length(StringInterning.pool)
+    end
+
+    originals = [randstring(rand(1:1024)) for _ in 1:10^5]
+    n_orginals = length(originals)
+
+    interns = InternedString.(originals);
+    checkpool(>)
+
+    for ii in 1:10^5
+        push!(interns, InternedString(rand(originals)))
+    end
+    checkpool(==)
+    originals = nothing
+    checkpool(==)
+
+
+
+    for ii in 1:30
+        shuffle!(interns)
+        for jj in 1:1000
+            pop!(interns)
+        end
+        checkpool(<=)
+    end
+
+    # This one matters:
+    @test length(StringInterning.pool) < n_orginals
 end end
