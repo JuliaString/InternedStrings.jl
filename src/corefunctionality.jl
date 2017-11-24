@@ -39,9 +39,6 @@ Base.String(s::InternedString) = s.value
 Base.endof(s::InternedString) = endof(s.value)
 Base.next(s::InternedString, i::Int) = next(s.value, i)
 
-Base.sizeof(s::InternedString) = sizeof(s.value)
-
-
 Base.:(==)(s1::InternedString, s2::InternedString) = s1.value === s2.value # InternedStrings have refernitally equal values
 Base.:(==)(s1::String, s2::InternedString) = s1 == s2.value # use faster than the AbstractString equality check
 Base.:(==)(s1::InternedString, s2::String) = s2 == s1
