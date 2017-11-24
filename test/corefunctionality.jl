@@ -44,9 +44,22 @@ end end
 
     @test i"a $(2*54) c" == "a 108 c"
     x = "cruel"
-    @test i"hello $x world" == "hello cruel world"    
+    @test i"hello $x world" == "hello cruel world"
 end end
 
+
+@testset "Convert" begin let
+    @test convert(InternedString, "Foo") isa InternedString
+    data = InternedString[]
+    push!(data, "Foo") #should convert during push
+    @test data[1] == i"Foo"
+end end
+
+@testset "Reverse Convert" begin let
+    @test convert(String, i"Foo") == "Foo"
+    @test convert(String, i"Foo") isa String
+    @test String(i"Foo") isa String
+end end
 
 
 @testset "Garbage Collection 1" begin let

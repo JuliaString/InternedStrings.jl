@@ -31,14 +31,15 @@ macro i_str(s)
     Expr(:call, InternedString,true_string_expr)
 end
 
+Base.convert(::Type{InternedString}, s::AbstractString) = InternedString(s)
+Base.convert(::Type{String}, s::InternedString) = String(s)
+Base.String(s::InternedString) = s.value
 
 
 Base.endof(s::InternedString) = endof(s.value)
 Base.next(s::InternedString, i::Int) = next(s.value, i)
 
 Base.sizeof(s::InternedString) = sizeof(s.value)
-
-Base.String(s::InternedString) = s.value
 
 
 Base.:(==)(s1::InternedString, s2::InternedString) = s1.value === s2.value # InternedStrings have refernitally equal values
