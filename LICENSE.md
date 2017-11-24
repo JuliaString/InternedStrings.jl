@@ -1,6 +1,7 @@
 The StringInterning.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2017: Lyndon White.
+> Copyright (c) 2009-2016: Jeff Bezanson, Stefan Karpinski, Viral B. Shah, and other contributors: https://github.com/JuliaLang/julia/contributors
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +22,6 @@ The StringInterning.jl package is licensed under the MIT "Expat" License:
 > SOFTWARE.
 >
 
-Some tests are derived from tests in the Julia base library.
+
+A lot of the RegEx code was taken from the Julia base library.
 https://github.com/JuliaLang/julia
-Copyright (c) 2009-2016: Jeff Bezanson, Stefan Karpinski, Viral B. Shah, and other contributors: https://github.com/JuliaLang/julia/contributors
