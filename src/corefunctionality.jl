@@ -27,7 +27,8 @@ struct InternedString <: AbstractString
 end
 
 macro i_str(s)
-    :(InternedString($(unescape_string(s)))) # handle escapes like real string literals
+    true_string_expr = esc(parse(string('"', unescape_string(s), '"')))
+    Expr(:call, InternedString,true_string_expr)
 end
 
 

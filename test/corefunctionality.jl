@@ -33,6 +33,8 @@ end end
     ai = InternedString(a)
     bi = InternedString(b)
     @test ai.value === bi.value == a
+
+    @test InternedString("a $(2*54) c") == "a 108 c"
 end end
 
 
@@ -40,10 +42,7 @@ end end
     @test i"abc" == "abc"
     @test i"a\na\na\na" == join(fill("a", 4), "\n")
 
-    @test_broken i"a $(2*54) c" == "a 108 c"
-    # I'ld like interpolation to work at some point
-    # Til then one has to write as below
-    @test InternedString("a $(2*54) c") == "a 108 c"
+    @test i"a $(2*54) c" == "a 108 c"
 end end
 
 
