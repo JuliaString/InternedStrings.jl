@@ -43,6 +43,8 @@ end end
     @test i"a\na\na\na" == join(fill("a", 4), "\n")
 
     @test i"a $(2*54) c" == "a 108 c"
+    x = "cruel"
+    @test i"hello $x world" == "hello cruel world"    
 end end
 
 
