@@ -1,5 +1,3 @@
-
-
 # controls `*`
 Base.string(x::InternedString, ys...) = InternedString(string(x.value, ys...))
 Base.string(x::AbstractString, y::InternedString, zs...) = InternedString(string(x, y.value, zs...))
@@ -76,3 +74,16 @@ end
 function Base.eachmatch(re::Regex, str::InternedString, ovr::Bool=false)
     (intern(m) for m in eachmatch(re, str.value, ovr))
 end
+
+####################################################
+
+for fn in [:uppercase, :lowercase, :strip, :rstrip, :lstrip]
+    @eval Base.$fn(a::InternedString) = InternedString($fn(a.value))
+end
+
+for fn in [:strip, :rstrip, :lstrip]
+    @eval Base.$fn(a::InternedString, b::Base.Chars) = InternedString($fn(a.value, b))
+end
+
+Base.replace(str::InternedString, pat, f) = InternedString(replace(str.value, pat, f))
+Base.replace(str::InternedString, pat, f, n::Integer) = InternedString(replace(str.value, pat, f, n))
