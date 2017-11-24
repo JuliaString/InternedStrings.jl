@@ -71,7 +71,7 @@ probably >10% the content (Ask Zipf).
 you might want to retrieve just the 10 most common verbs that occur in a sentence with 4 or more nouns.
       - You only need about 100bytes of content, but with SubStrings you are keeping all 100MB in memory.
  - Another is if you have trained word embeddings, then you need a dictionary where the keys are the set of tokens in the vocabulary.
-      - 10,000,000 (10⁷)words probably only has about 50,000 unique words tops, so you only need to be keeping 5×10⁵ bytes of content, not 10⁸)
+      - 10,000,000 (10⁷)words probably only has about 50,000 unique words (after cleaning out rare words), so you only need to be keeping 5×10⁵ bytes of content, not 10⁸)
 In all these cases you are keeping a lot more memory that you need.
 If you are smart you will spot it and convert them to Strings, so the content can be deleted.
 But i am not smart, and have made that mistake many times.
@@ -115,7 +115,9 @@ removing the copy in the interning pool will be handled automatically (it is a W
 
 Finally point **4:**.
 As I said before.
-The original 10⁸ byte document, with 10⁷ words probably only has about 50,000 (5×10⁴) unique words.
+The original 10⁸ byte document, with 10⁷ words probably only has about 50,000 (5×10⁴) unique words after cleaning.
+(Looking at real world data, the first 10⁷ tokens of wikipedia,
+is has 3.5×10⁵ words, but that is before rare words, numbers etc are removed)
 At an average of 10 bytes long you only need to be keeping 5×10⁵ bytes of content,
 plus for each 8 bytes of pointers/length markers (8×10⁴), plus 1 byte each for null terminating them all. (Grand total: 5.9×10⁵ bytes vs original 10⁸+9 bytes).
 
