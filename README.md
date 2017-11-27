@@ -1,9 +1,9 @@
-# StringInterning
+# InternedStrings
 
 String interning in julia.
 For not having duplicate strings in memory.
 
-[![Build Status](https://travis-ci.org/oxinabox/StringInterning.jl.svg?branch=master)](https://travis-ci.org/oxinabox/StringInterning.jl)
+[![Build Status](https://travis-ci.org/oxinabox/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/oxinabox/InternedStrings.jl)
 
 ## Usage
 
@@ -27,7 +27,7 @@ But it is a bit too breaking.
 
 SubStrings and InternedStrings solve roughly the same problem.
 But with different techniques and trade-offs.
-If you are using StringInterning you probably don't want a substring anywhere.
+If you are using InternedStrings you probably don't want a substring anywhere.
 Since you might mistakenly end-up holding on to a really big string.
 The very problem this is designed to avoid.
 
@@ -150,7 +150,7 @@ Which requires writing more manual memory management (at least reference countin
 than I want to do.
 But like even 16 bit pointers (65,536) are probably just enough for most NLP tasks.
 
-One thing to do is to use (on-top of StringInterning.jl), [MLLabelUtils.jl](https://github.com/JuliaML/MLLabelUtils.jl) and encode your strings as Ints.
+One thing to do is to use (on-top of InternedStrings.jl), [MLLabelUtils.jl](https://github.com/JuliaML/MLLabelUtils.jl) and encode your strings as Ints.
 
 
 

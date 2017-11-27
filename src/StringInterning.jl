@@ -1,4 +1,4 @@
-module StringInterning
+module InternedStrings
 using Base
 
 export InternedString, @i_str

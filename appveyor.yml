@@ -41,7 +41,7 @@ build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
-      Pkg.clone(pwd(), \"StringInterning\"); Pkg.build(\"StringInterning\")"
+      Pkg.clone(pwd(), \"InternedStrings\"); Pkg.build(\"InternedStrings\")"
 
 test_script:
-  - C:\projects\julia\bin\julia -e "Pkg.test(\"StringInterning\")"
+  - C:\projects\julia\bin\julia -e "Pkg.test(\"InternedStrings\")"

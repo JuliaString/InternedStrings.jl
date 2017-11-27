@@ -1,4 +1,4 @@
-using StringInterning
+using InternedStrings
 using Base.Test
 
 "This function makes use of `xs` in a way no optimizer can possibly remove"
@@ -9,7 +9,7 @@ function use(xs...)
 end
 
 @testset "Basic String Functionality" begin let
-    empty!(StringInterning.pool)
+    empty!(InternedStrings.pool)
 
     s = InternedString("Hello My Friends1")
 
@@ -25,7 +25,7 @@ end end
 
 
 @testset "Interning" begin let
-    empty!(StringInterning.pool)
+    empty!(InternedStrings.pool)
     a = "Hello My Friends2"
     b = join(["Hello", "My", "Friends2"], " ")
     @test !(a===b) # sanity check that strings are not already Interning
@@ -63,41 +63,41 @@ end end
 
 
 @testset "Garbage Collection 1" begin let
-    empty!(StringInterning.pool)
-    @test length(StringInterning.pool)==0
+    empty!(InternedStrings.pool)
+    @test length(InternedStrings.pool)==0
     ai =  InternedString("Hello My Friends3")
     ai = [44] #remove the reference
     gc();
-    @test 0<=length(StringInterning.pool)<=1 #May or may not have been collected yet
+    @test 0<=length(InternedStrings.pool)<=1 #May or may not have been collected yet
 end end
 
 @testset "Garbage Collection 2" begin let
-    empty!(StringInterning.pool)
-    @test length(StringInterning.pool)==0
+    empty!(InternedStrings.pool)
+    @test length(InternedStrings.pool)==0
     ai = InternedString("Hello My Friends4")
     bi = InternedString(join(["Hello", "My", "Friends4"], " "))
     @test ai.value === bi.value
-    @test length(StringInterning.pool)==1
+    @test length(InternedStrings.pool)==1
     use(ai,bi)
     ai = [44]
     gc()
-    @test length(StringInterning.pool)==1 #don't collect when only one reference is gone
+    @test length(InternedStrings.pool)==1 #don't collect when only one reference is gone
     use(bi)
     bi=[32]
     gc()
-    @test 0<=length(StringInterning.pool)<=1
+    @test 0<=length(InternedStrings.pool)<=1
 end end
 
 
 
 srand(1)
 @testset "Garbage Collection stress test" begin let
-    empty!(StringInterning.pool)
-    oldpoolsize = length(StringInterning.pool)
+    empty!(InternedStrings.pool)
+    oldpoolsize = length(InternedStrings.pool)
     function checkpool(op)
         gc()
-        @test op(length(StringInterning.pool), oldpoolsize)
-        oldpoolsize = length(StringInterning.pool)
+        @test op(length(InternedStrings.pool), oldpoolsize)
+        oldpoolsize = length(InternedStrings.pool)
     end
 
     originals = [randstring(rand(1:1024)) for _ in 1:10^5]
@@ -124,5 +124,5 @@ srand(1)
     end
 
     # This one matters:
-    @test length(StringInterning.pool) < n_orginals
+    @test length(InternedStrings.pool) < n_orginals
 end end

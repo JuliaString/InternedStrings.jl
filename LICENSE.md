@@ -1,4 +1,4 @@
-The StringInterning.jl package is licensed under the MIT "Expat" License:
+The InternedStrings.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2017: Lyndon White.
 > Copyright (c) 2009-2016: Jeff Bezanson, Stefan Karpinski, Viral B. Shah, and other contributors: https://github.com/JuliaLang/julia/contributors

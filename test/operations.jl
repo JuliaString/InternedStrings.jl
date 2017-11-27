@@ -1,5 +1,5 @@
 using Base.Test
-using StringInterning
+using InternedStrings
 
 macro testtype(ex)
     :(@test typeof($ex) == InternedString) |>esc
