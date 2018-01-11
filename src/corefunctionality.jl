@@ -2,23 +2,26 @@
 const pool = WeakKeyDict{String, Void}()
 
 
-function intern!(wkd::WeakKeyDict{K}, key::K)::K where K
-    kk = convert(K, key)
-    kwr = WeakRef(kk)
 
-    lock(wkd) do
-        index = Base.ht_keyindex2(wkd.ht, kwr) # returns index if present, or -index if not
-        if index > 0
-            # found it
-            @inbounds found_key = wkd.ht.keys[index]
-            return found_key.value # a strong ref
-        else
-            # Not found, so add it,
-            # and mark it as a reference we track to delete!
-            finalizer(kk, wkd.finalizer) # finalizer is set on the strong ref
-            @inbounds Base._setindex!(wkd.ht, nothing, kwr, -index)
-            return kk # Return the strong ref
-        end
+@inline function intern!(wkd::WeakKeyDict{K}, key::K) ::K where K
+    kk::K = convert(K, key)
+
+    lock(wkd.lock)
+    index = Base.ht_keyindex2(wkd.ht, kk) # returns index if present, or -index if not
+    # note hash of weakref is equal to the hash of value, so avoid constructing it if not required
+    if index > 0
+        # found it
+        @inbounds found_key = wkd.ht.keys[index]
+        unlock(wkd.lock)
+
+        return found_key.value # a strong ref
+    else
+        # Not found, so add it,
+        # and mark it as a reference we track to delete!
+        finalizer(kk, wkd.finalizer) # finalizer is set on the strong ref
+        @inbounds Base._setindex!(wkd.ht, nothing, WeakRef(kk), -index)
+        unlock(wkd.lock)
+        return kk # Return the strong ref
     end
 end
 
