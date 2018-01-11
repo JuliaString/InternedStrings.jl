@@ -1,21 +1,23 @@
 
 const pool = WeakKeyDict{String, Void}()
 
-function intern!(wkd::WeakKeyDict{K}, key)::K where K
+
+function intern!(wkd::WeakKeyDict{K}, key::K)::K where K
     kk = convert(K, key)
     kwr = WeakRef(kk)
-    lock(wkd) do
-        found_key = getkey(wkd.ht, kwr, Base.secret_table_token)
-        found = !(found_key === Base.secret_table_token)
 
-        if found
-            return found_key.value
+    lock(wkd) do
+        index = Base.ht_keyindex2(wkd.ht, kwr) # returns index if present, or -index if not
+        if index > 0
+            # found it
+            @inbounds found_key = wkd.ht.keys[index]
+            return found_key.value # a strong ref
         else
             # Not found, so add it,
             # and mark it as a reference we track to delete!
-            finalizer(kk, wkd.finalizer)
-            wkd.ht[kwr]=nothing
-            return kk
+            finalizer(kk, wkd.finalizer) # finalizer is set on the strong ref
+            @inbounds Base._setindex!(wkd.ht, nothing, kwr, -index)
+            return kk # Return the strong ref
         end
     end
 end
