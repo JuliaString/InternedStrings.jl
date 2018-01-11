@@ -1,19 +1,20 @@
-
 const pool = WeakKeyDict{String, Void}()
 
+# This forces the type to be inferred (I don't know that the @noinline is reqired or even good)
+@noinline getvalue(::Type{K}, wk) where K = wk.value::K
 
 @inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
     kk::K = convert(K, key)
 
     lock(wkd.lock)
+        # hand positioning the locks and unlocks (rather than do block or try finally, seems to be faster)
     index = Base.ht_keyindex2(wkd.ht, kk) # returns index if present, or -index if not
     # note hash of weakref is equal to the hash of value, so avoid constructing it if not required
     if index > 0
         # found it
         @inbounds found_key = wkd.ht.keys[index]
         unlock(wkd.lock)
-
-        return found_key.value # a strong ref #TODO workout away to make this type stable
+        return getvalue(K, found_key) # return the strong ref
     else
         # Not found, so add it,
         # and mark it as a reference we track to delete!
