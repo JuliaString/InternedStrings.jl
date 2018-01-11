@@ -2,8 +2,7 @@
 const pool = WeakKeyDict{String, Void}()
 
 
-
-@inline function intern!(wkd::WeakKeyDict{K}, key::K) ::K where K
+@inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
     kk::K = convert(K, key)
 
     lock(wkd.lock)
@@ -14,7 +13,7 @@ const pool = WeakKeyDict{String, Void}()
         @inbounds found_key = wkd.ht.keys[index]
         unlock(wkd.lock)
 
-        return found_key.value # a strong ref
+        return found_key.value # a strong ref #TODO workout away to make this type stable
     else
         # Not found, so add it,
         # and mark it as a reference we track to delete!
