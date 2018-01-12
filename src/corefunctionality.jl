@@ -3,6 +3,8 @@ const pool = WeakKeyDict{String, Void}()
 # This forces the type to be inferred (I don't know that the @noinline is reqired or even good)
 @noinline getvalue(::Type{K}, wk) where K = wk.value::K
 
+
+# NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
 @inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
     kk::K = convert(K, key)
 
