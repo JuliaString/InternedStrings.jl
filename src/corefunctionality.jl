@@ -4,9 +4,13 @@ const pool = WeakKeyDict{String, Void}()
 @noinline getvalue(::Type{K}, wk) where K = wk.value::K
 
 
-# NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
 @inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
-    kk::K = convert(K, key)
+    intern!(wkd, convert(K, key))
+end
+
+# NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
+@inline function intern!(wkd::WeakKeyDict{K}, kk::K)::K where K
+
 
     lock(wkd.lock)
         # hand positioning the locks and unlocks (rather than do block or try finally, seems to be faster)

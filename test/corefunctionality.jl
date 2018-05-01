@@ -1,6 +1,8 @@
 using InternedStrings
 using Base.Test
 
+empty!(InternedStrings.pool)
+
 "This function makes use of `xs` in a way no optimizer can possibly remove"
 function use(xs...)
     mktemp() do fn, fh
