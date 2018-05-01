@@ -4,7 +4,7 @@ using InternedStrings
 @time include("corefunctionality.jl")
 @time include("corefunctionality.jl")
 
-#==
+#== These are based on an old version of "corefunctionality.jl"
 # v0.4.0
 >  17.880453 seconds (15.97 M allocations: 895.803 MiB, 25.37% gc time)
 >  12.293750 seconds (12.30 M allocations: 707.467 MiB, 36.30% gc time)

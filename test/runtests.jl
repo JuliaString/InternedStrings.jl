@@ -1,6 +1,10 @@
 using Base.Test
-using TestSetExtensions
 
-@testset "All the tests" begin
-    @includetests ARGS
+testnames = [
+    "all_kinds_of_types",
+    "string_macro",
+    "corefunctionality"
+]
+@testset "$testname" for testname in testnames
+    include("$testname.jl")
 end

@@ -14,8 +14,6 @@ using InternedStrings
         @test ex1 isa String
         @inferred intern!("ex")
     end
-
-
 end
 
 
