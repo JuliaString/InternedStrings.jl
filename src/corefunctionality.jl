@@ -31,10 +31,15 @@ end
     end
 end
 
-struct InternedString <: AbstractString
-    value::String
+function InternedString(s::T)::T where T
+    intern!(pool, s)
+end
 
-    InternedString(s) = new(intern!(pool, s))
+"""
+Substrings are interned as their parent string type
+"""
+function InternedString(str::SubString{T})::T where T
+    InternedString(T(str))
 end
 
 macro i_str(s)
@@ -43,15 +48,3 @@ macro i_str(s)
 end
 
 Base.convert(::Type{InternedString}, s::AbstractString) = InternedString(s)
-Base.convert(::Type{String}, s::InternedString) = String(s)
-Base.String(s::InternedString) = s.value
-
-
-Base.endof(s::InternedString) = endof(s.value)
-Base.next(s::InternedString, i::Int) = next(s.value, i)
-
-Base.:(==)(s1::InternedString, s2::InternedString) = s1.value === s2.value # InternedStrings have refernitally equal values
-Base.:(==)(s1::String, s2::InternedString) = s1 == s2.value # use faster than the AbstractString equality check
-Base.:(==)(s1::InternedString, s2::String) = s2 == s1
-
-Base.hash(s::InternedString, h::UInt) = hash(s.value, h)

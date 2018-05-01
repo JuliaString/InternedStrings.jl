@@ -34,7 +34,7 @@ end end
 
     ai = InternedString(a)
     bi = InternedString(b)
-    @test ai.value === bi.value == a
+    @test ai === bi
 
     @test InternedString("a $(2*54) c") == "a 108 c"
 end end
@@ -49,19 +49,6 @@ end end
     @test i"hello $x world" == "hello cruel world"
 end end
 
-
-@testset "Convert" begin let
-    @test convert(InternedString, "Foo") isa InternedString
-    data = InternedString[]
-    push!(data, "Foo") #should convert during push
-    @test data[1] == i"Foo"
-end end
-
-@testset "Reverse Convert" begin let
-    @test convert(String, i"Foo") == "Foo"
-    @test convert(String, i"Foo") isa String
-    @test String(i"Foo") isa String
-end end
 
 
 @testset "Garbage Collection 1" begin let
@@ -78,7 +65,7 @@ end end
     @test length(InternedStrings.pool)==0
     ai = InternedString("Hello My Friends4")
     bi = InternedString(join(["Hello", "My", "Friends4"], " "))
-    @test ai.value === bi.value
+    @test ai === bi
     @test length(InternedStrings.pool)==1
     use(ai,bi)
     ai = [44]

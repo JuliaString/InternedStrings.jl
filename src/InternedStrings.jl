@@ -4,7 +4,11 @@ using Base
 export InternedString, @i_str
 
 include("corefunctionality.jl")
-include("operations.jl")
 
+
+function convert(::typeof(InternedString), str::AbstractString)
+    warning("InternedString is no longer a type. It is just a function, and a deprecated one at that")
+    InternedString(str)
+end
 
 end # module
