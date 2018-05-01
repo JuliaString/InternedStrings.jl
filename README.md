@@ -7,41 +7,72 @@ For not having duplicate strings in memory.
 
 ## Usage
 
-`InternedString(s)` returns an interned string.
-it won't allocate new memory if an interned string with that content already exists.
+`intern(s)` returns an interned string.
+The short of it is that you can call `intern(s)` on any strings you expect to have multiple copies of in memory, and you will enjoy memory savings.
+You'll also enjoy much faster equality checks.
+
+
+If a string with that content was interned before, calling `intern(s)` will returns (a reference to) the earlier string; if this is the first time the string was interned it will return (a reference to) its input.
+Using `s=intern(s)` or otherwise getting rid of old references to memory that you are interning allows the old references to be garbage collected so you only have memory used by unique strings.
+
+The interned strings are fully transparent -- they are normal references to the original string.
+So when all references to that string (i.e. all "copies" of it from interning ) go out of scope, it will be garbage collected.
 And when that interned string goes out of scope, it **will** be garbage collected, so don't worry about it.
 
 For convenience it also comes in string macro form:
-`i"My String Uses Less Memory than Yours"`, makes an interned string with that content.
+`i"My String Uses Less Memory than Yours"`, makes a string with that content and interns it immediately.
 
-Use them just like you would Strings and enjoy your memory savings.
+### What types can I intern?
+You can intern any type really. It doesn't actually have to be a string at all.
+Strange things will happen if you mutate something that has been interned though; so it is recommended for use with immutable types only.
+All types go into their own interning pool.
+Except SubStrings, which are interned into their parent string type.
 
+You might like to intern the strings from [Strs.jl](https://github.com/JuliaString/Strs.jl)
 
-####  `split` and regex the functions don't return substrings anymore :-( :-(
-Yes,  `split`ing an InternedString does not make a vector of  `SubString{InternedString}`.
-It just make an `InternedString`.
-Similar for all the regex function.
+###  What exactly is going on?
+If your not familiar with the concept of string interning perhaps the following example will help.
 
-Ideally we would also change every `SubStrings{InternedString}` everywhere, to be just `InternedString`.
-But it is a bit too breaking.
+```
+julia> using InternedStrings
 
-SubStrings and InternedStrings solve roughly the same problem.
-But with different techniques and trade-offs.
-If you are using InternedStrings you probably don't want a substring anywhere.
-Since you might mistakenly end-up holding on to a really big string.
-The very problem this is designed to avoid.
+julia> a = "Gold"
+"Gold"
 
-Please raise issues if you find functions that are returning SubStrings,
-that shouldn't be.
+julia> typeof(a), object_id(a) #This is the orignal reference
+(String, 0x2052f7ed641c9475)
+
+julia> a = intern(a)
+"Gold"
+
+julia> typeof(a), object_id(a) # No change still same memory
+(String, 0x2052f7ed641c9475)
+
+julia> b = "Gold"
+"Gold"
+
+julia> typeof(b),object_id(b) # New memory, see different ID
+(String, 0x927fe26348e44a27)
+
+julia> b = intern(b) # Replace it,
+"Gold"
+
+julia> typeof(b),object_id(b) # See it is same memory as for the original `a`
+(String, 0x2052f7ed641c9475)
+
+ #now the memory allocated to "b" with id=0x927fe26348e44a27 can be garbage collected
+
+julia> object_id(intern("Gold")) # Same again
+0x2052f7ed641c9475
+```
 
 
 ## Motivation (/Ranting)
-In natural language processing,
-when looking at a document,
+In natural language processing, when looking at a document,
 the first thing to do is to break it up into tokens.
-Tokenization can often be done simply:
-the most simple-case is just `split`,
+Tokenization can often be done simply: the most simple-case is just `split`,
 more complex use some regex, or even something fairly sophisticated.
+See [WordTokenizers.jl](https://github.com/JuliaText/WordTokenizers.jl)
 
 There is an issue though:
 How much are these tokens costing you in memory use?
@@ -77,39 +108,33 @@ If you are smart you will spot it and convert them to Strings, so the content ca
 But i am not smart, and have made that mistake many times.
 
 
-One option is to use [WeakRefStrings.jl](https://github.com/quinnj/WeakRefStrings.jl).
-In those, keeping you WeakRef substrings in memory won't keep the original string in memory.
-Only now you are responsible for managing that memory yourself.
-And for strengthening those references as required.
-
 So there has to be a better way.
 We want to:
 
- 1. Have lots of Strings, without lots of allocations (like SubString/WeakRefString, unlike String)
- 2. Not have to worry about mistakenly keeping original huge source string in memory (like WeakRefString/String, unlike SubString)
- 3. Not have to worry about managing the memory of the strings ourself (like SubString/String, unlike WeakRefString)
- 4. Just outright use less memory. (Unlike any String string type)
+ 1. Have lots of Strings, without lots of allocations (like SubString, unlike String)
+ 2. Not have to worry about mistakenly keeping original huge source string in memory (like String, unlike SubString)
+ 3. Not have to worry about managing the memory of the strings ourself
+ 4. Just outright use less memory.
 
 Can we do that? Yes we can.
 
-#### InternedString
+#### `intern`
 
-Every InternedString is a strong reference to a real String.
-But unlike normal Strings, if two InternedStrings are content equal, they are reference equal.
+The value returned by `intern`is a strong reference to a real String.
+But unlike for normal use of Strings,  if `s1==s1` then `intern(s1)===intern(s2)`  i.e. strings are that content equal, they are reference equal (once interned).
 That is to say if they look like each other, then they are each other.
 
-When a new InternedStrings is created,
-before allocating new memory, we check to see if there already is an InternedString with that content, and if so we just grab a (Strong) reference to that existing String.
-This solves point **1.** by reducing allocations, (though not as much as SubStrings, which only have to allocated there pointers and length markers)
-
+When a string is interned is created we check to see if there already is an interned string with that content, and if so return it.
+interning a string has no on-going new allocations -- not even the pointer and length marker that `SubString` has.
+This solves point **1.** by reducing allocations.
 
 You don't have to worry about mistakenly keeping the huge source string in memory, (Like `SubString`)
 as they do not have a reference to that huge string, unless they **are** that huge source string.
 So that solves point **2.**
 
 On point **3.** you don't have to worry about managing the memory yourself,
-because each InternedString is a strong reference to it's content.
-Once the last InternedString with that content goes out of scope (and is garbage collected),
+because each is just a normal reference to it's content.
+Once the last string with with that content goes out of scope (and is garbage collected),
 removing the copy in the interning pool will be handled automatically (it is a WeakRef, so won't keep it alive).
 
 
@@ -120,14 +145,15 @@ The original 10⁸ byte document, with 10⁷ words probably only has about 50,00
 is has 3.5×10⁵ words, but that is before rare words, numbers etc are removed)
 At an average of 10 bytes long you only need to be keeping 5×10⁵ bytes of content,
 plus for each 8 bytes of pointers/length markers (8×10⁴), plus 1 byte each for null terminating them all. (Grand total: 5.9×10⁵ bytes vs original 10⁸+9 bytes).
+The only difference memory wise between tokenizing into Strings or  SubStrings is that the memory for the content in substrings is all contiguous, where as for Strings it need to be reallocated.
 
-Since each `InternedString` is only one point (to the actual String)
-you only have 4×10⁷ bytes of pointers (don't need the 4 bytes of length markers).
-vs SubString's 8×10⁷ bytes of pointers/length markers,
-or individual String's 9×10⁷ bytes of pointers/length markers/null terminating.
+
+ - Original: 10⁸ byte  content, 8 bytes pointers/length markers (To be tokenized to  10⁷ words)
+  - Tokenized: 10×10⁷=10⁸ byte  content, 8×10⁷ bytes pointers/length markers. Total 1.8×10⁸ bytes.
+ - Tokenized and interned: 10×5×10⁴=5×10⁵ byte  content, 8×10⁷ bytes pointers/length markers. Total 0.805×10⁸ bytes.
 
 These numbers are all pretty rough, I've probably screwed up in a few places.
-Point is though, this saves you like an order of magnitude in memory.
+Point is though, this can better than halve the memory use.
 It only gets better when you increase the size of the original document.
 As the size of the vocabulary increases only logarithmically with the size of the document.
 
@@ -168,15 +194,12 @@ But they are focused on Pooling for a single array.
 
 The unmaintained (and unregistered) PooledElements.jl, did global pools.
 However, no automatic garbage collection.
-Also not referentially sane -- magic is required make sure it was workign with serialization etc.
+Also not referentially sane -- magic is required make sure it was working with serialization etc.
 
 ### What is the downside?
-There is basically no downside to InternedString vs String.
-String is always 1 pointer allocation + content allocation.
-InternedString is always 1 pointer allocation + maybe 1 extra pointer and content (if new).
-So worse case you end up paying to allocate 1 extra pointer.
+There is basically no downside to interning a String.
+It just takes a little time to hash the string to check if it is there or not.
 
 There are most downsides vs SubString.
-Substring is per token always 1 pointer + 1 length marker allocation,
-never more (but you never get to release the content from its parent).
-InternedString is as above (chance at 1 pointer only, chance at more if new), but you get the release the content from it's parent.
+Substrings avoid allocating memory for segments of content,
+which means you can put off and potentially outright avoid expensive allocations.

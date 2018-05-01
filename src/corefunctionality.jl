@@ -40,19 +40,19 @@ end
 
 ###################################
 
-function intern!(s::T)::T where T
+function intern(s::T)::T where T
     intern!(get_pool(T), s)
 end
 
-intern!(s::String)=intern!(get_pool(String), s) # Break stack-overflow
+intern(s::String)=intern!(get_pool(String), s) # Break stack-overflow
 
 
 
 """
 Substrings are interned as their parent string type
 """
-function intern!(substr::SubString{T})::T where T
-    intern!(T(substr))
+function intern(substr::SubString{T})::T where T
+    intern(T(substr))
 end
 
 
@@ -61,5 +61,5 @@ end
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))
-    Expr(:call, intern!, true_string_expr)
+    Expr(:call, intern, true_string_expr)
 end
