@@ -62,11 +62,6 @@ end
 
 #############################
 
-function InternedString(s::T)::T where T
-    intern!(s)
-end
-
-
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))

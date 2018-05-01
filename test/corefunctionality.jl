@@ -13,7 +13,7 @@ end
 @testset "Basic String Functionality" begin let
     empty!(InternedStrings.pool)
 
-    s = InternedString("Hello My Friends1")
+    s = intern!("Hello My Friends1")
 
     @test length(s) == length("Hello My Friends1")
 
@@ -22,7 +22,7 @@ end
     @test s == s
     @test s == "Hello My Friends1"
 
-    @test InternedString(s) === s
+    @test intern!(s) === s
 end end
 
 
@@ -32,11 +32,11 @@ end end
     b = join(["Hello", "My", "Friends2"], " ")
     @test !(a===b) # sanity check that strings are not already Interning
 
-    ai = InternedString(a)
-    bi = InternedString(b)
+    ai = intern!(a)
+    bi = intern!(b)
     @test ai === bi
 
-    @test InternedString("a $(2*54) c") == "a 108 c"
+    @test intern!("a $(2*54) c") == "a 108 c"
 end end
 
 
@@ -47,7 +47,7 @@ end end
 @testset "Garbage Collection 1" begin let
     empty!(InternedStrings.pool)
     @test length(InternedStrings.pool)==0
-    ai =  InternedString("Hello My Friends3")
+    ai =  intern!("Hello My Friends3")
     ai = [44] #remove the reference
     gc();
     @test 0<=length(InternedStrings.pool)<=1 #May or may not have been collected yet
@@ -56,8 +56,8 @@ end end
 @testset "Garbage Collection 2" begin let
     empty!(InternedStrings.pool)
     @test length(InternedStrings.pool)==0
-    ai = InternedString("Hello My Friends4")
-    bi = InternedString(join(["Hello", "My", "Friends4"], " "))
+    ai = intern!("Hello My Friends4")
+    bi = intern!(join(["Hello", "My", "Friends4"], " "))
     @test ai === bi
     @test length(InternedStrings.pool)==1
     use(ai,bi)
@@ -85,17 +85,15 @@ srand(1)
     originals = [randstring(rand(1:1024)) for _ in 1:10^5]
     n_orginals = length(originals)
 
-    interns = InternedString.(originals);
+    interns = intern!.(originals);
     checkpool(>)
 
     for ii in 1:10^5
-        push!(interns, InternedString(rand(originals)))
+        push!(interns, intern!(rand(originals)))
     end
     checkpool(==)
     originals = nothing
     checkpool(==)
-
-
 
     for ii in 1:30
         shuffle!(interns)
