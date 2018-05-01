@@ -44,7 +44,5 @@ end
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))
-    Expr(:call, InternedString,true_string_expr)
+    Expr(:call, InternedString, true_string_expr)
 end
-
-Base.convert(::Type{InternedString}, s::AbstractString) = InternedString(s)

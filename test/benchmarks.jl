@@ -13,7 +13,7 @@ using InternedStrings
 > 16.724464 seconds (15.51 M allocations: 871.196 MiB, 27.44% gc time)
 > 13.172371 seconds (12.63 M allocations: 724.610 MiB, 35.13% gc time)
 
-# v0.5.0- 
+# v0.5.0-1 #just return the type, no wrapper type
 > 6.503763 seconds (2.17 M allocations: 603.847 MiB, 50.20% gc time)
 > 4.745838 seconds (663.51 k allocations: 529.511 MiB, 68.21% gc time)
 ==#
