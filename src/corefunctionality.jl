@@ -1,8 +1,8 @@
-const pool = WeakKeyDict{String, Void}()
+########################
+# The pool/interning lookup core code
 
 # This forces the type to be inferred (I don't know that the @noinline is reqired or even good)
 @noinline getvalue(::Type{K}, wk) where K = wk.value::K
-
 
 @inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
     intern!(wkd, convert(K, key))
@@ -30,17 +30,43 @@ end
         return kk # Return the strong ref
     end
 end
+#####################################################
+# Setup for types
 
-function InternedString(s::T)::T where T
-    intern!(pool, s)
+const pool = Dict{DataType, WeakKeyDict}()
+
+@inline function get_pool(::Type{T})::WeakKeyDict{T, Void} where T
+    get!(pool, T) do
+        WeakKeyDict{T, Void}()
+    end
 end
+
+
+###################################
+
+function intern!(s::T)::T where T
+    intern!(get_pool(T), s)
+end
+
+intern!(s::String)=intern!(get_pool(String), s) # Break stack-overflow
+
+
 
 """
 Substrings are interned as their parent string type
 """
-function InternedString(str::SubString{T})::T where T
-    InternedString(T(str))
+function intern!(substr::SubString{T})::T where T
+    intern!(T(substr))
 end
+
+
+#############################
+
+function InternedString(s::T)::T where T
+    intern!(s)
+end
+
+
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))

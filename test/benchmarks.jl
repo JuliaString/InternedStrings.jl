@@ -16,4 +16,10 @@ using InternedStrings
 # v0.5.0-1 #just return the type, no wrapper type
 > 6.503763 seconds (2.17 M allocations: 603.847 MiB, 50.20% gc time)
 > 4.745838 seconds (663.51 k allocations: 529.511 MiB, 68.21% gc time)
+
+# v0.5.0-2 #make generalisable to any type
+>  6.832553 seconds (2.17 M allocations: 604.098 MiB, 50.77% gc time
+>  5.201278 seconds (951.61 k allocations: 536.155 MiB, 65.95% gc time)
+
+
 ==#

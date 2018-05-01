@@ -1,7 +1,7 @@
 module InternedStrings
 using Base
 
-export InternedString, @i_str
+export InternedString, @i_str, intern!
 
 include("corefunctionality.jl")
 
