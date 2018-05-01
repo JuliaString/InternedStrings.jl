@@ -4,13 +4,9 @@
 # This forces the type to be inferred (I don't know that the @noinline is reqired or even good)
 @noinline getvalue(::Type{K}, wk) where K = wk.value::K
 
-@inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
-    intern!(wkd, convert(K, key))
-end
-
 # NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
-@inline function intern!(wkd::WeakKeyDict{K}, kk::K)::K where K
-
+@inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
+    kk::K = convert(K, key)
 
     lock(wkd.lock)
         # hand positioning the locks and unlocks (rather than do block or try finally, seems to be faster)
@@ -65,5 +61,5 @@ end
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))
-    Expr(:call, InternedString, true_string_expr)
+    Expr(:call, intern!, true_string_expr)
 end

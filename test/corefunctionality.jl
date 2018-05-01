@@ -40,9 +40,29 @@ end end
 end end
 
 
+#=
+@testset "ID check" begin let
+    a = "Gold"
+    object_id(a)
+0x4d6be1cce1ad21e4
 
+    a = intern!(a)
+    object_id(a)
+0xaf345380275a09a1
 
+    b = "Gold"
+    object_id(b)
+0x136147bbed9bf3b3
+    b = intern!(b)
+"Gold"
+    object_id(b)
+0xaf345380275a09a1
 
+    object_id(intern!("Gold"))
+0xaf345380275a09a1
+
+end end
+=#
 
 @testset "Garbage Collection 1" begin let
     empty!(InternedStrings.pool)

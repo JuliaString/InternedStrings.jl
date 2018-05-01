@@ -32,7 +32,8 @@ end
     end
 end
 
-@testset "BigFloat" begin
+#== Uncomment when https://github.com/JuliaLang/julia/issues/26939  is fixed
+@testset "BigFloat" begin let
     pi1 = intern!(BigFloat(π))
     @test pi1==BigFloat(π)
     @test !(pi1===BigFloat(π))
@@ -44,4 +45,9 @@ end
         @test pi1 isa BigFloat
         @inferred intern!(BigFloat(π))
     end
-end
+end end
+
+==#
+
+
+dicts = [WeakKeyDict()]
