@@ -1,15 +1,12 @@
 module InternedStrings
 using Base
 
-export InternedString, @i_str, intern
+export @i_str, intern
 
 include("corefunctionality.jl")
 
-@deprecate InternedString(str) intern(str)
 
-function Base.convert(::typeof(InternedString), str::AbstractString)
-    warning("InternedString is no longer a type. It is just a function, and a deprecated one at that")
-    InternedString(str)
+Base.@deprecate_binding(InternedString, String, true)
+#InternedString(s)=intern(String(s))
+
 end
-
-end # module
