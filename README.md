@@ -23,10 +23,14 @@ For convenience it also comes in string macro form:
 `i"My String Uses Less Memory than Yours"`, makes a string with that content and interns it immediately.
 
 ### What types can I intern?
-You can intern any type really. It doesn't actually have to be a string at all.
+You can intern any type really.
+It doesn't actually have to be a string at all.
 Strange things will happen if you mutate something that has been interned though; so it is recommended for use with immutable types only.
+
 All types go into their own interning pool.
-Except SubStrings, which are interned into their parent string type.
+Except `SubString`s, which are interned into their parent string type,
+as we do not want to be holding on to reference to the parent string while a interned reference exists.
+You can overload the behavior of `intern(::MyType)` in the usual way.
 
 You might like to intern the strings from [Strs.jl](https://github.com/JuliaString/Strs.jl)
 
@@ -39,7 +43,7 @@ julia> using InternedStrings
 julia> a = "Gold"
 "Gold"
 
-julia> typeof(a), object_id(a) #This is the orignal reference
+julia> typeof(a), object_id(a) #This is the original reference
 (String, 0x2052f7ed641c9475)
 
 julia> a = intern(a)
