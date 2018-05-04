@@ -1,10 +1,12 @@
 module InternedStrings
 using Base
 
-export InternedString, @i_str
+export @i_str, intern
 
 include("corefunctionality.jl")
-include("operations.jl")
 
 
-end # module
+Base.@deprecate_binding(InternedString, String, true)
+#InternedString(s)=intern(String(s))
+
+end

@@ -1,16 +1,12 @@
-const pool = WeakKeyDict{String, Void}()
+########################
+# The pool/interning lookup core code
 
 # This forces the type to be inferred (I don't know that the @noinline is reqired or even good)
 @noinline getvalue(::Type{K}, wk) where K = wk.value::K
 
-
-@inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
-    intern!(wkd, convert(K, key))
-end
-
 # NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
-@inline function intern!(wkd::WeakKeyDict{K}, kk::K)::K where K
-
+@inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
+    kk::K = convert(K, key)
 
     lock(wkd.lock)
         # hand positioning the locks and unlocks (rather than do block or try finally, seems to be faster)
@@ -30,28 +26,40 @@ end
         return kk # Return the strong ref
     end
 end
+#####################################################
+# Setup for types
 
-struct InternedString <: AbstractString
-    value::String
+const pool = Dict{DataType, WeakKeyDict}()
 
-    InternedString(s) = new(intern!(pool, s))
+@inline function get_pool(::Type{T})::WeakKeyDict{T, Void} where T
+    get!(pool, T) do
+        WeakKeyDict{T, Void}()
+    end
 end
+
+
+###################################
+
+function intern(s::T)::T where T
+    intern!(get_pool(T), s)
+end
+
+intern(s::String)=intern!(get_pool(String), s) # Break stack-overflow
+
+
+
+"""
+Substrings are interned as their parent string type
+"""
+function intern(substr::SubString{T})::T where T
+    intern(T(substr))
+end
+
+
+#############################
+
 
 macro i_str(s)
     true_string_expr = esc(parse(string('"', unescape_string(s), '"')))
-    Expr(:call, InternedString,true_string_expr)
+    Expr(:call, intern, true_string_expr)
 end
-
-Base.convert(::Type{InternedString}, s::AbstractString) = InternedString(s)
-Base.convert(::Type{String}, s::InternedString) = String(s)
-Base.String(s::InternedString) = s.value
-
-
-Base.endof(s::InternedString) = endof(s.value)
-Base.next(s::InternedString, i::Int) = next(s.value, i)
-
-Base.:(==)(s1::InternedString, s2::InternedString) = s1.value === s2.value # InternedStrings have refernitally equal values
-Base.:(==)(s1::String, s2::InternedString) = s1 == s2.value # use faster than the AbstractString equality check
-Base.:(==)(s1::InternedString, s2::String) = s2 == s1
-
-Base.hash(s::InternedString, h::UInt) = hash(s.value, h)
