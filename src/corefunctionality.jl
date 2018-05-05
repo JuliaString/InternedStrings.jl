@@ -6,11 +6,9 @@
 
 # NOTE: This code is carefully optimised. Do not tweak it (for readability or otherwise) without benchmarking
 @inline function intern!(wkd::WeakKeyDict{K}, key)::K where K
-    kk::K = convert(K, key)
-
     lock(wkd.lock)
         # hand positioning the locks and unlocks (rather than do block or try finally, seems to be faster)
-    index = Base.ht_keyindex2(wkd.ht, kk) # returns index if present, or -index if not
+    index = Base.ht_keyindex2(wkd.ht, key) # returns index if present, or -index if not
     # note hash of weakref is equal to the hash of value, so avoid constructing it if not required
     if index > 0
         # found it
@@ -20,6 +18,7 @@
     else
         # Not found, so add it,
         # and mark it as a reference we track to delete!
+        kk::K = convert(K, key)
         finalizer(kk, wkd.finalizer) # finalizer is set on the strong ref
         @inbounds Base._setindex!(wkd.ht, nothing, WeakRef(kk), -index)
         unlock(wkd.lock)
@@ -40,19 +39,34 @@ end
 
 ###################################
 
+"""
+    intern(s::T)
+
+Return a reference to a interned instance of `s`,
+adding it to the interning pool if it did not already exist.
+"""
 function intern(s::T)::T where T
-    intern!(get_pool(T), s)
+    intern(T, s)
 end
 
-intern(s::String)=intern!(get_pool(String), s) # Break stack-overflow
+"""
+    intern(::Type{T}, s)
 
+Intern `s` as if it were type `T`, converting it if required.
+Note that this will lead to unexpected behavour if the type of `s`, and `T`,
+do not have equivalent equality and hash functions
+(i.e. this is not safe if `hash(s) != hash(convert(T, s))`).
+"""
+function intern(::Type{T}, s)::T where T
+    intern!(get_pool(T), s)
+end
 
 
 """
 Substrings are interned as their parent string type
 """
 function intern(substr::SubString{T})::T where T
-    intern(T(substr))
+    intern(T, substr)
 end
 
 
