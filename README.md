@@ -3,7 +3,7 @@
 String interning in julia.
 For not having duplicate strings in memory.
 
-[![Build Status](https://travis-ci.org/oxinabox/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/oxinabox/InternedStrings.jl)
+[![Build Status](https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/JuliaString/InternedStrings.jl)
 
 ## Usage
 
