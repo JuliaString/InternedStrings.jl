@@ -1,16 +1,11 @@
-using Base.Test
-using InternedStrings
-
 @testset "String" begin
     ex1 = intern("ex")
-    @test ex1=="ex"
-    @test !(ex1==="ex")
+    @test ex1 == "ex"
+    V6_COMPAT ? (@test ex1 !== "ex") : (@test_broken !object_id_eq(ex1, "ex"))
     ex2 = intern("ex")
-    @test ex1===ex2
+    @test object_id_eq(ex1, ex2)
     ex3 = intern(String, "ex")
-    @test ex1===ex3
-
-
+    @test object_id_eq(ex1, ex3)
 
     @testset "type inference" begin
         @test ex1 isa String
@@ -20,17 +15,15 @@ using InternedStrings
     end
 end
 
-
-
 @testset "SubString" begin
     aa1, bb1, cc1 = intern.(split("aa bb cc"))
     aa2, bb2, cc2 = intern.(split("aa bb cc"))
     aa3, bb3, cc3 = intern.(String, split("aa bb cc"))
 
-    @test bb1=="bb"
-    @test !(bb1==="bb")
-    @test bb1===bb2
-    @test bb1===bb3
+    @test bb1 == "bb"
+    V6_COMPAT ? (@test bb1 !== "bb") : (@test_broken !object_id_eq(bb1, "bb"))
+    @test object_id_eq(bb1, bb2)
+    @test object_id_eq(bb1, bb3)
 
     @testset "type inference" begin
         @test intern(split("aa bb cc")[1]) isa String
@@ -44,30 +37,26 @@ end
     using WeakRefStrings
     s1 = "ex"
     s2 = "ex"
-    ex1 = @inferred intern(String, WeakRefString(Vector{UInt8}(s1)))
-    @test ex1=="ex"
-    @test !(ex1===s1)
+    ex1 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s1)))
+    V6_COMPAT ? (@test ex1 !== s1) : (@test_broken !object_id_eq(ex1, s1))
     @test ex1 isa String
-    ex2 = @inferred intern(String, WeakRefString(Vector{UInt8}(s2)))
-    @test ex1===ex2
+    ex2 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s2)))
+    @test object_id_eq(ex1, ex2)
 end
 
-#== Uncomment when https://github.com/JuliaLang/julia/issues/26939  is fixed
-@testset "BigFloat" begin let
-    pi1 = intern(BigFloat(π))
-    @test pi1==BigFloat(π)
-    @test !(pi1===BigFloat(π))
+# Enable when https://github.com/JuliaLang/julia/issues/26939 is fixed
+false && @testset "BigFloat" begin
+    let
+        pi1 = intern(BigFloat(π))
+        @test pi1 == BigFloat(π)
+        @test !object_id_eq(pi1, BigFloat(π))
 
-    pi2 = intern(BigFloat(π))
-    @test pi1===pi2
+        pi2 = intern(BigFloat(π))
+        @test object_id_eq(pi1, pi2)
 
-    @testset "type inference" begin
-        @test pi1 isa BigFloat
-        @inferred intern(BigFloat(π))
+        @testset "type inference" begin
+            @test pi1 isa BigFloat
+            @inferred intern(BigFloat(π))
+        end
     end
-end end
-
-==#
-
-
-dicts = [WeakKeyDict()]
+end

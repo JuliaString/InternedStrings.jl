@@ -5,6 +5,10 @@ For not having duplicate strings in memory.
 
 [![Build Status](https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/JuliaString/InternedStrings.jl)
 
+[![Coverage Status](https://coveralls.io/repos/github/JuliaString/InternedStrings.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaString/InternedStrings.jl?branch=master)
+
+[![codecov.io](http://codecov.io/github/JuliaString/InternedStrings.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaString/InternedStrings.jl?branch=master)
+
 ## Usage
 
 `intern(s)` returns an interned string.
@@ -82,7 +86,7 @@ There is an issue though:
 How much are these tokens costing you in memory use?
 
 Originally you had say a 100MB (10⁸ bytes) text file (multiply this out as required).
-Which as a String took-up (10⁸ bytes + 1 pointer (4 bytes) + 1 length marker (4 bytes) + null terminating character (total 10⁸ + 9 bytes).
+Which as a String took-up (10⁸ bytes + 1 pointer (4 or 8 bytes) + 1 length marker (4 or 8 bytes) + null terminating character (total 10⁸ + 9 (or 17) bytes).
 To simplify the math lets say the average token  length was 10 bytes.
 So you had 10⁷ tokens.
 
@@ -142,7 +146,7 @@ Once the last string with with that content goes out of scope (and is garbage co
 removing the copy in the interning pool will be handled automatically (it is a WeakRef, so won't keep it alive).
 
 
-Finally point **4:**.
+Final point **4:**.
 As I said before.
 The original 10⁸ byte document, with 10⁷ words probably only has about 50,000 (5×10⁴) unique words after cleaning.
 (Looking at real world data, the first 10⁷ tokens of wikipedia,
