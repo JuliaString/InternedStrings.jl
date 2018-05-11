@@ -38,6 +38,7 @@ end
     s1 = "ex"
     s2 = "ex"
     ex1 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s1)))
+    @test ex1=="ex"
     @test !addr_eq(ex1, s1)
     @test ex1 isa String
     ex2 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s2)))

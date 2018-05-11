@@ -61,12 +61,13 @@ end
     end
 end
 
+using Compat.GC
 @testset "Garbage Collection 1" begin let
     empty!(InternedStrings.pool)
     @test length(InternedStrings.pool)==0
     ai =  intern("Hello My Friends3")
     ai = [44] #remove the reference
-    gc();
+    GC.gc();
     @test 0<=length(InternedStrings.pool)<=1 #May or may not have been collected yet
 end end
 
@@ -79,25 +80,27 @@ end end
     @test length(InternedStrings.pool)==1
     use(ai,bi)
     ai = [44]
-    gc()
+    GC.gc()
     @test length(InternedStrings.pool)==1 #don't collect when only one reference is gone
     use(bi)
     bi=[32]
-    gc()
+    GC.gc()
     @test 0<=length(InternedStrings.pool)<=1
 end end
 
+
+using Compat.Random
 srand(1)
 @testset "Garbage Collection stress test" begin let
     empty!(InternedStrings.pool)
     oldpoolsize = length(InternedStrings.pool)
     function checkpool(op)
-        gc()
+        GC.gc()
         @test op(length(InternedStrings.pool), oldpoolsize)
         oldpoolsize = length(InternedStrings.pool)
     end
 
-    originals = [randstring(rand(1:1024)) for _ in 1:10^5]
+    originals = [Random.randstring(rand(1:1024)) for _ in 1:10^5]
     n_orginals = length(originals)
 
     interns = intern.(originals);
@@ -111,7 +114,7 @@ srand(1)
     checkpool(==)
 
     for ii in 1:30
-        shuffle!(interns)
+        Random.shuffle!(interns)
         for jj in 1:1000
             pop!(interns)
         end
