@@ -7,17 +7,16 @@ Licensed under MIT License, see LICENSE.md
 """
 module InternedStrings
 
+using Compat
+
 export @i_str, intern
 
 Base.@deprecate_binding(InternedString, String, true)
 
 @static if VERSION < v"0.7.0-DEV"
-    const Nothing = Void
     const ht_keyindex2! = Base.ht_keyindex2
-    add_finalizer(fun::Function, obj) = Base.finalizer(obj, fun)
 else
     using Base: ht_keyindex2!
-    const add_finalizer = Base.finalizer
 end
 
 ########################
@@ -43,7 +42,7 @@ end
         # Not found, so add it,
         # and mark it as a reference we track to delete!
         kk::K = convert(K, key)
-        add_finalizer(wkd.finalizer, kk) # finalizer is set on the strong ref
+        @compat finalizer(wkd.finalizer, kk) # finalizer is set on the strong ref
         @inbounds Base._setindex!(wkd.ht, nothing, WeakRef(kk), -index)
         unlock(wkd.lock)
         return kk # Return the strong ref
