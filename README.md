@@ -86,9 +86,10 @@ See [WordTokenizers.jl](https://github.com/JuliaText/WordTokenizers.jl)
 
 There is an issue though:
 How much are these tokens costing you in memory use?
+The math in this section is a bit hand-wavy and an over-simplification, but it should give you the gist of it.
 
 Originally you had say a 100MB (10⁸ bytes) text file (multiply this out as required).
-Which as a String took-up (10⁸ bytes + 1 pointer (4 or 8 bytes) + 1 length marker (4 or 8 bytes) + null terminating character (total 10⁸ + 9 (or 17) bytes).
+Which as a String took-up (10⁸ bytes + 1 pointer (4 or 8 bytes) + 1 length marker (4 or 8 bytes) + null terminating character (total 10⁸ + 9 (or 16) bytes).
 To simplify the math lets say the average token  length was 10 bytes.
 So you had 10⁷ tokens.
 
