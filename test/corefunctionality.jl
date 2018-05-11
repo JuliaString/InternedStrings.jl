@@ -19,7 +19,7 @@ end
     @test s == s
     @test s == "Hello My Friends1"
 
-    @test object_id_eq(intern(s), s)
+    @test addr_eq(intern(s), s)
 end end
 
 
@@ -30,46 +30,32 @@ end end
         empty!(InternedStrings.pool)
 
         # sanity check that strings are not already Interning
-        V6_COMPAT ? (@test !object_id_eq(a, b)) : (@test_broken !object_id_eq(a, b))
+        @test !addr_eq(a, b)
 
         ai = intern(a)
         bi = intern(b)
-        @test object_id_eq(ai, bi)
+        @test addr_eq(ai, bi)
 
         @test intern("a $(2*54) c") == "a 108 c"
     end
 end
 
-#=
-a = "Gold"
-typeof(a), objectid(a) # This is the orignal reference
-a = intern(a)
-typeof(a), objectid(a) # No change still same memory
-b = "Gold"
-typeof(b),objectid(b)  # New memory, see different ID
-b = intern(b)          # Replace it, now the memory with id= can be freed
-typeof(b),objectid(b)  # See it is same memory as for the original `a`
-objectid(intern("Gold")) # Same again
-=#
-
 @testset "ID check" begin
-    let a = "Gold", b = "Gold"
+    let a = "Gold", b = String(b"Gold")
 
         empty!(InternedStrings.pool)
 
-        target_id = objectid(a)
+        target_addr = pointer(a)
 
         a = intern(a)
-        @test objectid(a) == target_id
+        @test pointer(a) == target_addr
 
-        (V6_COMPAT
-         ? (@test objectid(b) != target_id)
-         : (@test_broken !object_id_eq(objectid(b), target_id)))
+        @test pointer(b) != target_addr
 
         b = intern(b)
-        @test objectid(b) == target_id
+        @test pointer(b) == target_addr
 
-        @test objectid(intern("Gold")) == target_id
+        @test pointer(intern(SubString("Gold", 1))) == target_addr
 
         use(a,b)
     end
@@ -89,7 +75,7 @@ end end
     @test length(InternedStrings.pool)==0
     ai = intern("Hello My Friends4")
     bi = intern(join(["Hello", "My", "Friends4"], " "))
-    @test object_id_eq(ai, bi)
+    @test addr_eq(ai, bi)
     @test length(InternedStrings.pool)==1
     use(ai,bi)
     ai = [44]

@@ -10,7 +10,6 @@ module InternedStrings
 export @i_str, intern
 
 Base.@deprecate_binding(InternedString, String, true)
-#InternedString(s)=intern(String(s))
 
 @static if VERSION < v"0.7.0-DEV"
     const Nothing = Void
@@ -98,6 +97,7 @@ end
 
 
 macro i_str(s)
+    # This is done to get interpolation to work correctly
     true_string_expr = esc(Meta.parse(string('"', unescape_string(s), '"')))
     Expr(:call, intern, true_string_expr)
 end

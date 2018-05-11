@@ -1,11 +1,11 @@
 @testset "String" begin
     ex1 = intern("ex")
     @test ex1 == "ex"
-    V6_COMPAT ? (@test ex1 !== "ex") : (@test_broken !object_id_eq(ex1, "ex"))
+    @test !addr_eq(ex1, "ex")
     ex2 = intern("ex")
-    @test object_id_eq(ex1, ex2)
+    @test addr_eq(ex1, ex2)
     ex3 = intern(String, "ex")
-    @test object_id_eq(ex1, ex3)
+    @test addr_eq(ex1, ex3)
 
     @testset "type inference" begin
         @test ex1 isa String
@@ -21,9 +21,9 @@ end
     aa3, bb3, cc3 = intern.(String, split("aa bb cc"))
 
     @test bb1 == "bb"
-    V6_COMPAT ? (@test bb1 !== "bb") : (@test_broken !object_id_eq(bb1, "bb"))
-    @test object_id_eq(bb1, bb2)
-    @test object_id_eq(bb1, bb3)
+    @test !addr_eq(bb1, "bb")
+    @test addr_eq(bb1, bb2)
+    @test addr_eq(bb1, bb3)
 
     @testset "type inference" begin
         @test intern(split("aa bb cc")[1]) isa String
@@ -38,10 +38,10 @@ end
     s1 = "ex"
     s2 = "ex"
     ex1 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s1)))
-    V6_COMPAT ? (@test ex1 !== s1) : (@test_broken !object_id_eq(ex1, s1))
+    @test !addr_eq(ex1, s1)
     @test ex1 isa String
     ex2 = @inferred intern(String, WeakRefString(unsafe_wrap(Vector{UInt8}, s2)))
-    @test object_id_eq(ex1, ex2)
+    @test addr_eq(ex1, ex2)
 end
 
 # Enable when https://github.com/JuliaLang/julia/issues/26939 is fixed
@@ -49,10 +49,10 @@ false && @testset "BigFloat" begin
     let
         pi1 = intern(BigFloat(π))
         @test pi1 == BigFloat(π)
-        @test !object_id_eq(pi1, BigFloat(π))
+        @test !addr_eq(pi1, BigFloat(π))
 
         pi2 = intern(BigFloat(π))
-        @test object_id_eq(pi1, pi2)
+        @test addr_eq(pi1, pi2)
 
         @testset "type inference" begin
             @test pi1 isa BigFloat
