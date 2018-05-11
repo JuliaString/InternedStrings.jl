@@ -5,6 +5,9 @@ For not having duplicate strings in memory.
 
 [![Build Status](https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/JuliaString/InternedStrings.jl)
 
+
+[![codecov.io](http://codecov.io/github/JuliaString/InternedStrings.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaString/InternedStrings.jl?branch=master)
+
 ## Usage
 
 `intern(s)` returns an interned string.
@@ -38,36 +41,39 @@ You might like to intern the strings from [Strs.jl](https://github.com/JuliaStri
 If your not familiar with the concept of string interning perhaps the following example will help.
 
 ```
+
 julia> using InternedStrings
 
 julia> a = "Gold"
 "Gold"
 
-julia> typeof(a), object_id(a) #This is the original reference
-(String, 0x2052f7ed641c9475)
+julia> typeof(a), pointer(a)
+(String, Ptr{UInt8} @0x00007fe604e93b18)
 
 julia> a = intern(a)
 "Gold"
 
-julia> typeof(a), object_id(a) # No change still same memory
-(String, 0x2052f7ed641c9475)
+julia> typeof(a), pointer(a) # No change still same memory
+(String, Ptr{UInt8} @0x00007fe604e93b18)
 
 julia> b = "Gold"
 "Gold"
 
-julia> typeof(b),object_id(b) # New memory, see different ID
-(String, 0x927fe26348e44a27)
+julia> typeof(b),pointer(b) # New memory, see different ID
+(String, Ptr{UInt8} @0x00007fe5fae44444)
 
 julia> b = intern(b) # Replace it,
 "Gold"
 
-julia> typeof(b),object_id(b) # See it is same memory as for the original `a`
-(String, 0x2052f7ed641c9475)
+julia> typeof(b),pointer(b) # See it is same memory as for the original `a`
+(String, Ptr{UInt8} @0x00007fe604e93b18)
+#now the memory allocated to "b" at addr=0x00007fe5fae44444 can be garbage collected
 
- #now the memory allocated to "b" with id=0x927fe26348e44a27 can be garbage collected
+julia> pointer(intern("Gold")) # Same again
+Ptr{UInt8} @0x00007fe604e93b18
 
-julia> object_id(intern("Gold")) # Same again
-0x2052f7ed641c9475
+julia> pointer(intern(SubString("Golden",1,4))) # Substrings too
+Ptr{UInt8} @0x00007fe604e93b1
 ```
 
 
@@ -82,7 +88,7 @@ There is an issue though:
 How much are these tokens costing you in memory use?
 
 Originally you had say a 100MB (10⁸ bytes) text file (multiply this out as required).
-Which as a String took-up (10⁸ bytes + 1 pointer (4 bytes) + 1 length marker (4 bytes) + null terminating character (total 10⁸ + 9 bytes).
+Which as a String took-up (10⁸ bytes + 1 pointer (4 or 8 bytes) + 1 length marker (4 or 8 bytes) + null terminating character (total 10⁸ + 9 (or 17) bytes).
 To simplify the math lets say the average token  length was 10 bytes.
 So you had 10⁷ tokens.
 
@@ -142,7 +148,7 @@ Once the last string with with that content goes out of scope (and is garbage co
 removing the copy in the interning pool will be handled automatically (it is a WeakRef, so won't keep it alive).
 
 
-Finally point **4:**.
+Final point **4:**.
 As I said before.
 The original 10⁸ byte document, with 10⁷ words probably only has about 50,000 (5×10⁴) unique words after cleaning.
 (Looking at real world data, the first 10⁷ tokens of wikipedia,
