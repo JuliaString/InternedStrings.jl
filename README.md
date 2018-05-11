@@ -132,7 +132,7 @@ Can we do that? Yes we can.
 #### `intern`
 
 The value returned by `intern`is a strong reference to a real String.
-But unlike for normal use of Strings,  if `s1==s1` then `intern(s1)===intern(s2)`  i.e. strings are that content equal, they are reference equal (once interned).
+But unlike for normal use of Strings,  if `s1==s1` then `pointer(intern(s1)) == pointer(intern(s2))`  i.e. strings are that content equal, they are reference equal (once interned).
 That is to say if they look like each other, then they are each other.
 
 When a string is interned is created we check to see if there already is an interned string with that content, and if so return it.
