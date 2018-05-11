@@ -5,7 +5,6 @@ For not having duplicate strings in memory.
 
 [![Build Status](https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/JuliaString/InternedStrings.jl)
 
-[![Coverage Status](https://coveralls.io/repos/github/JuliaString/InternedStrings.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaString/InternedStrings.jl?branch=master)
 
 [![codecov.io](http://codecov.io/github/JuliaString/InternedStrings.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaString/InternedStrings.jl?branch=master)
 
