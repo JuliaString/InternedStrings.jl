@@ -42,36 +42,39 @@ You might like to intern the strings from [Strs.jl](https://github.com/JuliaStri
 If your not familiar with the concept of string interning perhaps the following example will help.
 
 ```
+
 julia> using InternedStrings
 
 julia> a = "Gold"
 "Gold"
 
-julia> typeof(a), object_id(a) #This is the original reference
-(String, 0x2052f7ed641c9475)
+julia> typeof(a), pointer(a)
+(String, Ptr{UInt8} @0x00007fe604e93b18)
 
 julia> a = intern(a)
 "Gold"
 
-julia> typeof(a), object_id(a) # No change still same memory
-(String, 0x2052f7ed641c9475)
+julia> typeof(a), pointer(a) # No change still same memory
+(String, Ptr{UInt8} @0x00007fe604e93b18)
 
 julia> b = "Gold"
 "Gold"
 
-julia> typeof(b),object_id(b) # New memory, see different ID
-(String, 0x927fe26348e44a27)
+julia> typeof(b),pointer(b) # New memory, see different ID
+(String, Ptr{UInt8} @0x00007fe5fae44444)
 
 julia> b = intern(b) # Replace it,
 "Gold"
 
-julia> typeof(b),object_id(b) # See it is same memory as for the original `a`
-(String, 0x2052f7ed641c9475)
+julia> typeof(b),pointer(b) # See it is same memory as for the original `a`
+(String, Ptr{UInt8} @0x00007fe604e93b18)
+#now the memory allocated to "b" at addr=0x00007fe5fae44444 can be garbage collected
 
- #now the memory allocated to "b" with id=0x927fe26348e44a27 can be garbage collected
+julia> pointer(intern("Gold")) # Same again
+Ptr{UInt8} @0x00007fe604e93b18
 
-julia> object_id(intern("Gold")) # Same again
-0x2052f7ed641c9475
+julia> pointer(intern(SubString("Golden",1,4))) # Substrings too
+Ptr{UInt8} @0x00007fe604e93b1
 ```
 
 
