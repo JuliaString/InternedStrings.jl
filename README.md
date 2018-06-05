@@ -3,10 +3,26 @@
 String interning in julia.
 For not having duplicate strings in memory.
 
-[![Build Status](https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master)](https://travis-ci.org/JuliaString/InternedStrings.jl)
+[![Linux & MacOS][travis-img]][travis-url]
 
+[![Windows][app-img]][app-img]
 
-[![codecov.io](http://codecov.io/github/JuliaString/InternedStrings.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaString/InternedStrings.jl?branch=master)
+[![][pkg-s-img]][pkg-url] [![][pkg-m-img]][pkg-url]
+
+[![codecov.io][codecov-img]][codecov-url]
+
+[travis-img]: https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/JuliaString/InternedStrings.jl
+
+[app-url]:    https://ci.appveyor.com/project/ScottPJones/internedstrings-jl/branch/master
+[app-img]:    https://ci.appveyor.com/api/projects/status/8dlhr5sprhokwyqb/branch/master?svg=true
+
+[pkg-url]:    http://pkg.julialang.org/detail/InternedStrings
+[pkg-s-img]:  http://pkg.julialang.org/badges/InternedStrings_0.6.svg
+[pkg-m-img]:  http://pkg.julialang.org/badges/InternedStrings_0.7.svg
+
+[codecov-url]: http://codecov.io/github/JuliaString/InternedStrings.jl?branch=master
+[codecov-img]: http://codecov.io/github/JuliaString/InternedStrings.jl/coverage.svg?branch=master
 
 ## Usage
 
