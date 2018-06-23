@@ -4,10 +4,11 @@ String interning in Julia.
 For not having duplicate strings in memory.
 
 Linux & MacOS | Windows | Package Evaluator | CodeCov | License
----- | ------- | ------- | ---- | -------
+------------- | ------- | ----------------- | ------- | -------
 [![Linux & MacOS][travis-img]][travis-url] |
 [![Windows][app-img]][app-img] |
-[![][pkg-s-img]][pkg-url] [![][pkg-m-img]][pkg-url] | [![codecov.io][codecov-img]][codecov-url] |
+[![][pkg-s-img]][pkg-url] [![][pkg-m-img]][pkg-url] |
+[![codecov.io][codecov-img]][codecov-url] |
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [travis-img]: https://travis-ci.org/JuliaString/InternedStrings.jl.svg?branch=master
