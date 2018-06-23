@@ -199,7 +199,7 @@ This means interning strings in other processes (e.g. via `pmap`) does not work.
 
 ### What about the factor packages ?
 
-`CategoricalArray`s etc.  are pretty similar in many ways.
+[CategoricalArray](https://github.com/JuliaData/CategoricalArrays.jl)s etc. are pretty similar in many ways.
 But they are focused on pooling for a single array.
 
 The unmaintained (and unregistered) [PooledElements.jl](https://github.com/tshort/PooledElements.jl), did global pools but without automatic garbage collection.
