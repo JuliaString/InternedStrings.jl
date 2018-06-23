@@ -165,7 +165,7 @@ The only difference memory-wise between tokenizing into Strings or  SubStrings i
 
 ### Why isn't everyone doing this?
 
-This is not an original idea and almost a direct implementation of the method described on [wikipedia](https://en.wikipedia.org/wiki/String_interning#Reclaiming_unused_interned_strings).
+This is not an original idea and almost a direct implementation of the method described on [Wikipedia](https://en.wikipedia.org/wiki/String_interning#Reclaiming_unused_interned_strings).
 Plenty of languages use or allow string interning.
 
 ### Can we cut down the per-token cost for those pointers?
