@@ -1,7 +1,7 @@
 # InternedStrings
 
 [String interning](https://en.wikipedia.org/wiki/String_interning) in Julia.
-To avoid duplicate strings in memory.
+To avoid duplicating strings in memory.
 
 Linux & MacOS | Windows | Package Evaluator | CodeCov | License
 ------------- | ------- | ----------------- | ------- | -------
@@ -73,12 +73,13 @@ String interning is supported by some modern [[object-oriented]] [[programming l
 [[Julia_(programming_language)|Julia]]
 and [[List of CLI languages|.NET languages]].<ref>[http://msdn.microsoft.com/en-us/library/system.string.aspx#Immutability Immutable objects in .NET]</ref> [[Lisp (programming language)|Lisp]], [[Scheme (programming language)|Scheme]], and [[Smalltalk]] are among the languages with a [[Symbol (programming)|symbol]] type that are basically interned strings. The library of the [[Standard ML of New Jersey]] contains an <tt>atom</tt> type that does the same thing. [[Objective-C]]'s selectors, which are mainly used as method names, are interned strings.
 """;
-julia> splita = split(a)
-julia> int_splita = intern.(splita);
-julia> int_splitb = intern.(splitb);
+julia> splita, splitb = split(a), split(b);
+julia> isplita, isplitb = intern.(splita), intern.(splitb);
 julia> length(union(pointer.(splita), pointer.(splitb)))
+163
+julia> length(union(pointer.(isplita), pointer.(isplitb)))
 123
-julia> length(split(a)) + length(splitb)
+julia> length(splita) + length(splitb)
 163
 ```
 
@@ -105,7 +106,7 @@ You might like to intern the strings from [Strs.jl](https://github.com/JuliaStri
 
 ## Motivation and NLP
 
-In NLP, when looking at a document, a common first task is to break it up into tokens.
+In NLP, when looking at a text document, a common first task is to break it up into tokens.
 Tokenization can often be done simply using `split` or using regex or even bespoke tools such as [WordTokenizers.jl](https://github.com/JuliaText/WordTokenizers.jl).
 
 There is an issue though:
@@ -122,12 +123,8 @@ Using `SubString` for the tokens helps: it still takes ≈2×10⁸ bytes but it 
 However, there is a catch: every `SubString` holds a strong reference to the original string.
 So long as even 1 `SubString` survives that 100MB has to stay in memory.
 
-It is however very common to discard a lot of those tokens, for example
-
-- the stop-words
-- the 20 most common words (often >10% of the content)
-
-so, in practice, you may only really want to keep track of a number of tokens far smaller than the number of words in the text; yet, with `SubString` tokens, you must keep the whole text in memory.
+It is however very common to discard a lot of those tokens, for example: the stop-words or the 20 most common words (often >10% of the content).
+So, in practice, you may only really want to keep track of a number of tokens *far smaller* than the number of words in the text; yet, with `SubString` tokens, you must keep the whole text in memory.
 This is also the case when considering word embeddings.
 
 ## Conclusion
@@ -163,6 +160,9 @@ At an average of 10 bytes long you only need to be keeping 5×10⁵ bytes of con
 (Grand total: 5.9×10⁵ bytes vs original 10⁸+9 bytes).
 The only difference memory-wise between tokenizing into Strings or  SubStrings is that the memory for the content in substrings is all contiguous, where as for Strings it need to be reallocated.
 
+## FAQ and comments
+
+
 ### Why isn't everyone doing this?
 
 This is not an original idea and almost a direct implementation of the method described on [wikipedia](https://en.wikipedia.org/wiki/String_interning#Reclaiming_unused_interned_strings).
@@ -176,8 +176,6 @@ Cutting this down without changing the system's pointer type, requires using man
 But even with 16 bit pointers (65,536) are probably just enough for most NLP tasks.
 
 One other thing to do is to use [MLLabelUtils.jl](https://github.com/JuliaML/MLLabelUtils.jl) (on-top of `InternedStrings.jl`) and encode your strings as `Int`s.
-
-## FAQ and comments
 
 ### What about symbols? Aren't they interned strings?
 
