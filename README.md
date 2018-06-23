@@ -56,7 +56,7 @@ You might like to intern the strings from [Strs.jl](https://github.com/JuliaStri
 ###  What exactly is going on?
 If your not familiar with the concept of string interning perhaps the following example will help.
 
-```
+```julia
 
 julia> using InternedStrings
 
