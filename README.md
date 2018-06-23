@@ -24,7 +24,7 @@ Linux & MacOS | Windows | Package Evaluator | CodeCov | License
 
 `intern(s)` returns an interned string.
 The short of it is that you can call `intern(s)` on any strings you expect to have multiple copies of in memory, and you will enjoy memory savings.
-You will also enjoy much faster equality checks.
+You will also enjoy much faster equality checks (via pointer comparison).
 
 Here is a simple example clarifying what interning does:
 
@@ -39,8 +39,9 @@ julia> pointer(intern(a)) == pointer(intern(b))
 true
 ```
 
-In the first case, both `a` and `b` had their own representation in memory (different pointers).
-In the second case, both `intern(a)` and `intern(b)` have the same representation in memory.
+In the first case, both `a` and `b` exist separately in memory (different pointers).
+In the second case, both `intern(a)` and `intern(b)` are strings that refer to the same piece of data in memory (same pointers).
+All interned strings that are content equal, are referentially equal.
 
 For convenience, the macro `i"string"` amounts to `intern(string)`:
 
@@ -57,6 +58,8 @@ julia> wk = "Wikipedia"
 julia> pointer(intern("pedia")) == pointer(intern(SubString(wk, 5, 9)))
 true
 ```
+
+More generally it works for most immutable types.
 
 ### Example use case: Natural Language Processing
 
@@ -177,7 +180,7 @@ But even with 16 bit pointers (65,536) are probably just enough for most NLP tas
 
 One other thing to do is to use [MLLabelUtils.jl](https://github.com/JuliaML/MLLabelUtils.jl) (on-top of `InternedStrings.jl`) and encode your strings as `Int`s.
 
-### What about symbols? Aren't they interned strings?
+### What about Symbols? Aren't they interned strings?
 
 Symbols are not semantically strings at all.
 Semantically they are names.
@@ -185,9 +188,18 @@ They are not a subtype of `AbstractString`, they don't support string operations
 You could build a interned string around them though.
 However, to the best of my knowledge, they are never garbage collected.
 
-### What about the Factor packages
+### What about serialization ?
 
-`CategorialArray`s etc  are pretty similar.
+The interning is transparent: after interning it is still just a string.
+So it serializes completely fine -- as the string that it is.
+However, when you deserialize a string it creates a new (not yet interned) string with the serialized content.
+This means interning strings in other processes (e.g. via `pmap`) does not work.
+(It is however completely safe to intern strings in any thread. This code is fully thread-safe.)
+
+
+### What about the factor packages ?
+
+[CategoricalArray](https://github.com/JuliaData/CategoricalArrays.jl)s etc. are pretty similar in many ways.
 But they are focused on pooling for a single array.
 
 The unmaintained (and unregistered) [PooledElements.jl](https://github.com/tshort/PooledElements.jl), did global pools but without automatic garbage collection.
@@ -195,8 +207,8 @@ Also not referentially sane -- magic is required to make sure it was working wit
 
 ### What is the downside?
 
-There is basically no downside to interning a String.
-The only overhead is to compute the hash of the string if it has already been interned or not.
+There is basically no downside to interning a string.
+The only overhead is to compute the hash of the string, to check if it has already been interned or not.
 
 There are more downsides vs `SubString`.
 Substrings avoid allocating memory for segments of content,
