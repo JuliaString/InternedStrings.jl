@@ -2,7 +2,6 @@ using InternedStrings
 
 
 using Test, Random, Base.GC
-const gc = GC.gc
 
 addr_eq(a,b) = pointer(a) === pointer(b)
 
