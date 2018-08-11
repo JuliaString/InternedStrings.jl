@@ -45,8 +45,7 @@ end
     @test addr_eq(ex1, ex2)
 end
 
-# Enable when https://github.com/JuliaLang/julia/issues/26939 is fixed
-false && @testset "BigFloat" begin
+@testset "BigFloat" begin
     let
         pi1 = intern(BigFloat(π))
         @test pi1 == BigFloat(π)
