@@ -7,17 +7,11 @@ Licensed under MIT License, see LICENSE.md
 """
 module InternedStrings
 
-using Compat
-
 export @i_str, intern
 
 Base.@deprecate_binding(InternedString, String, true)
 
-@static if VERSION < v"0.7.0-DEV"
-    const ht_keyindex2! = Base.ht_keyindex2
-else
-    using Base: ht_keyindex2!
-end
+using Base: ht_keyindex2!
 
 ########################
 # The pool/interning lookup core code
@@ -42,7 +36,7 @@ end
         # Not found, so add it,
         # and mark it as a reference we track to delete!
         kk::K = convert(K, key)
-        @compat finalizer(wkd.finalizer, kk) # finalizer is set on the strong ref
+        finalizer(wkd.finalizer, kk) # finalizer is set on the strong ref
         @inbounds Base._setindex!(wkd.ht, nothing, WeakRef(kk), -index)
         unlock(wkd.lock)
         return kk # Return the strong ref

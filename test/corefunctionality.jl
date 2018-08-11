@@ -61,7 +61,7 @@ end
     end
 end
 
-using Compat.GC
+using Base.GC
 @testset "Garbage Collection 1" begin let
     empty!(InternedStrings.pool)
     @test length(InternedStrings.pool)==0
@@ -89,8 +89,8 @@ end end
 end end
 
 
-using Compat.Random
-srand(1)
+using Random
+Random.seed!(1)
 @testset "Garbage Collection stress test" begin let
     empty!(InternedStrings.pool)
     oldpoolsize = length(InternedStrings.pool)
