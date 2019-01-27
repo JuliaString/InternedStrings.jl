@@ -24,7 +24,7 @@ Linux & MacOS | Windows | Package Evaluator | CodeCov | License
 
 `intern(s)` returns an interned string.
 The short of it is that you can call `intern(s)` on any strings you expect to have multiple copies of in memory, and you will enjoy memory savings.
-You will also enjoy much faster equality checks (via pointer comparison).
+You will also enjoy much faster equality checks (via pointer comparison, or in julia 1.2+ via `==` shortcutting to this).
 
 Here is a simple example clarifying what interning does:
 
