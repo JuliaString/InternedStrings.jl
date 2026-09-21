@@ -1,6 +1,6 @@
 name = "InternedStrings"
 uuid = "7d512f48-7fb1-5a58-b986-67e6dc259f01"
-version = "0.7.0"
+version = "0.7.1"
 
 [compat]
 julia = "0.7, 1"
