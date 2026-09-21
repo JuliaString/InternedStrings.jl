@@ -2,9 +2,13 @@ name = "InternedStrings"
 uuid = "7d512f48-7fb1-5a58-b986-67e6dc259f01"
 version = "0.7.0"
 
-[deps]
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
 [compat]
 julia = "0.7, 1"
+
+[extras]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+WeakRefStrings = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
+
+[targets]
+test = ["Random", "Test", "WeakRefStrings"]
