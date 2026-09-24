@@ -1,3 +1,8 @@
+v0.7.1
+------
+- Added a `Project.toml`, so the package works with `Pkg.develop` and
+  `JULIA_LOAD_PATH` and not just `Pkg.add`.
+
 v0.5.0
 ------
 - InternedString type is gone. It deprecates to string but does not cause immediate interning.
